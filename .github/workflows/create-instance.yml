@@ -1,0 +1,86 @@
+name: Create admin instance
+
+on:
+  workflow_dispatch:
+    inputs:
+      product_name:
+        description: Name shown on the login screen and header
+        required: true
+        type: string
+      dev_port:
+        description: Local port
+        required: true
+        default: "3002"
+        type: string
+      api_base_url:
+        description: Generic backend origin
+        required: true
+        default: "http://127.0.0.1:8000"
+        type: string
+      client_portal_origin:
+        description: Customer app origin
+        required: true
+        default: "http://localhost:3001"
+        type: string
+      app_url:
+        description: Public admin URL. Leave empty to use http://localhost:<port>
+        required: false
+        type: string
+      primary:
+        description: Primary hex color
+        required: false
+        default: "#000000"
+        type: string
+      primary_foreground:
+        description: Text on the primary color
+        required: false
+        default: "#ffffff"
+        type: string
+      hover:
+        description: Button hover hex color
+        required: false
+        default: "#808080"
+        type: string
+
+jobs:
+  create:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build the configured copy
+        env:
+          PRODUCT_NAME: ${{ inputs.product_name }}
+          DEV_PORT: ${{ inputs.dev_port }}
+          API_BASE_URL: ${{ inputs.api_base_url }}
+          CLIENT_PORTAL_ORIGIN: ${{ inputs.client_portal_origin }}
+          APP_URL: ${{ inputs.app_url }}
+          PRIMARY: ${{ inputs.primary }}
+          PRIMARY_FOREGROUND: ${{ inputs.primary_foreground }}
+          HOVER: ${{ inputs.hover }}
+        run: |
+          args=(
+            --dest instance-build
+            --no-install
+            --name "$PRODUCT_NAME"
+            --port "$DEV_PORT"
+            --api "$API_BASE_URL"
+            --portal "$CLIENT_PORTAL_ORIGIN"
+            --primary "$PRIMARY"
+            --primary-foreground "$PRIMARY_FOREGROUND"
+            --hover "$HOVER"
+          )
+          if [ -n "$APP_URL" ]; then
+            args+=(--app-url "$APP_URL")
+          fi
+          node scripts/create-instance.mjs "${args[@]}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: admin-instance
+          path: instance-build
+          if-no-files-found: error

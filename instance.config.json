@@ -1,0 +1,17 @@
+{
+  "productName": "Company X",
+  "packageName": "break-generic-admin",
+  "title": "",
+  "description": "",
+  "logo": "",
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#000000",
+    "primaryForeground": "#ffffff",
+    "primaryHover": "#808080"
+  },
+  "devPort": 3002,
+  "appUrl": "",
+  "apiBaseUrl": "http://127.0.0.1:8000",
+  "clientPortalOrigin": "http://localhost:3001"
+}
