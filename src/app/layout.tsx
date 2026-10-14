@@ -1,34 +1,41 @@
 import type { Metadata } from "next";
 
+import { LookProvider } from "@/components/look-provider";
 import { Providers } from "@/components/providers";
-import { instance } from "@/lib/instance";
+import { loadLook } from "@/lib/look";
 
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: instance.title,
-  description: instance.description,
-  icons: {
-    icon: instance.favicon,
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const look = await loadLook();
+  return {
+    title: look.title,
+    description: look.description,
+    icons: {
+      icon: look.favicon,
+    },
+  };
+}
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const look = await loadLook();
   return (
     <html
       lang="en"
       className="h-full"
       style={
         {
-          "--primary": instance.colors.primary,
-          "--primary-foreground": instance.colors.primaryForeground,
-          "--ring": instance.colors.primary,
-          "--brand-hover": instance.colors.primaryHover,
+          "--primary": look.colors.primary,
+          "--primary-foreground": look.colors.primaryForeground,
+          "--ring": look.colors.primary,
+          "--brand-hover": look.colors.primaryHover,
         } as React.CSSProperties
       }
     >
       <body className="min-h-full bg-white text-foreground">
-        <Providers>{children}</Providers>
+        <LookProvider look={look}>
+          <Providers>{children}</Providers>
+        </LookProvider>
       </body>
     </html>
   );

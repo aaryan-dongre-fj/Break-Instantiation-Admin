@@ -1,8 +1,7 @@
 import type { PortalInviteStatus, StaffRole } from "@/lib/types";
 
 export function roleLabel(role: StaffRole | string) {
-  if (role === "super_admin") return "Super Admin";
-  if (role === "admin") return "Admin";
+  if (role === "admin" || role === "super_admin") return "Admin";
   if (role === "backend_admin") return "Backend Admin";
   return role;
 }

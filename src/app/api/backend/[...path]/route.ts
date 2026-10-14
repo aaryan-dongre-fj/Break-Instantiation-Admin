@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { apiBaseUrl, clientPortalOrigin } from "@/lib/instance";
+import { companyApiOrigin } from "@/lib/look";
 
 type BackendContext = {
   params: Promise<{ path: string[] }>;
 };
 
-function apiBase() {
-  return apiBaseUrl();
+function apiBase(request: NextRequest) {
+  return companyApiOrigin(request.headers.get("host")) ?? apiBaseUrl();
 }
 
 function portalOrigin() {
@@ -30,7 +31,7 @@ function csrfFromCookie(cookieHeader: string | null) {
 
 async function proxy(request: NextRequest, context: BackendContext) {
   const { path } = await context.params;
-  const target = new URL(`${apiBase()}/api/${path.join("/")}/`);
+  const target = new URL(`${apiBase(request)}/api/${path.join("/")}/`);
   target.search = request.nextUrl.search;
 
   const headers = new Headers();

@@ -108,7 +108,7 @@ export function AdminsPanel({ createOpen, onCreateOpenChange }: AdminsPanelProps
 
   const emptyMessage =
     admins.length === 0
-      ? "No admins yet. Create one to assign clients."
+      ? "No admins yet."
       : "No admins match that search.";
 
   return (

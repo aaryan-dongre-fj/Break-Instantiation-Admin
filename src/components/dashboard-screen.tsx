@@ -6,13 +6,12 @@ import { useEffect, useState } from "react";
 import { AdminsPanel } from "@/components/admins-panel";
 import { AppHeader } from "@/components/app-header";
 import { ClientsPanel } from "@/components/clients-panel";
-import { SuperAdminsPanel } from "@/components/super-admins-panel";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApiError, apiFetch } from "@/lib/api";
-import { canManageAll, isBackendAdmin, isStaffRole } from "@/lib/roles";
+import { isStaffRole } from "@/lib/roles";
 import type { StaffProfile } from "@/lib/types";
 
-type Section = "clients" | "admins" | "super_admins";
+type Section = "clients" | "admins";
 
 export function DashboardScreen() {
   const { data: session, status } = useSession();
@@ -64,10 +63,7 @@ export function DashboardScreen() {
 
   if (!session?.user || !isStaffRole(session.user.role)) return null;
 
-  const managesAll = canManageAll(session.user.role);
-  const backendAdmin = isBackendAdmin(session.user.role);
-  const showingAdmins = managesAll && section === "admins";
-  const showingSuperAdmins = backendAdmin && section === "super_admins";
+  const showingAdmins = section === "admins";
 
   return (
     <div className="min-h-screen bg-white">
@@ -75,43 +71,29 @@ export function DashboardScreen() {
         name={session.user.name}
         email={session.user.email}
         role={session.user.role}
-        actionLabel={
-          showingSuperAdmins ? undefined : showingAdmins ? "New admin" : "New client"
-        }
-        onAction={
-          showingSuperAdmins
-            ? undefined
-            : () =>
-                showingAdmins ? setCreateAdminOpen(true) : setCreateClientOpen(true)
+        actionLabel={showingAdmins ? "New admin" : "New client"}
+        onAction={() =>
+          showingAdmins ? setCreateAdminOpen(true) : setCreateClientOpen(true)
         }
       />
-      {managesAll ? (
-        <Tabs
-          value={showingSuperAdmins ? "super_admins" : section}
-          onValueChange={(value) => {
-            if (value === "clients" || value === "admins") setSection(value);
-            if (value === "super_admins" && backendAdmin) setSection(value);
-          }}
-        >
-          <TabsList>
-            <TabsTrigger value="clients">Clients</TabsTrigger>
-            <TabsTrigger value="admins">Admins</TabsTrigger>
-            {backendAdmin ? (
-              <TabsTrigger value="super_admins">Super Admins</TabsTrigger>
-            ) : null}
-          </TabsList>
-        </Tabs>
-      ) : null}
-      {showingSuperAdmins ? (
-        <SuperAdminsPanel />
-      ) : showingAdmins ? (
+      <Tabs
+        value={section}
+        onValueChange={(value) => {
+          if (value === "clients" || value === "admins") setSection(value);
+        }}
+      >
+        <TabsList>
+          <TabsTrigger value="clients">Clients</TabsTrigger>
+          <TabsTrigger value="admins">Admins</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      {showingAdmins ? (
         <AdminsPanel
           createOpen={createAdminOpen}
           onCreateOpenChange={setCreateAdminOpen}
         />
       ) : (
         <ClientsPanel
-          isSuperAdmin={managesAll}
           createOpen={createClientOpen}
           onCreateOpenChange={setCreateClientOpen}
         />

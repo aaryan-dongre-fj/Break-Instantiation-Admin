@@ -1,6 +1,6 @@
 # Generic admin
 
-Staff admin for a copy of the generic backend. Super admins manage admins and every client. Admins manage the clients they are responsible for.
+Staff admin for a copy of the generic backend. An admin manages every client and the admin accounts.
 
 Sign in with email and password on `/`, then a credentials session sends you to `/dashboard`.
 
@@ -62,4 +62,4 @@ npm install
 npm run dev
 ```
 
-The dev server port comes from `instance.config.json`. Sign in with an admin, super admin, or backend admin from the generic backend. A Django superuser is a backend admin and can sign in here. Backend admins and super admins see every client, can assign a responsible admin, and manage admin accounts. Backend admins also see the super admin list.
+The dev server port comes from `instance.config.json`. Sign in with an admin or a backend admin from the generic backend. A Django superuser is a backend admin and can sign in here. Both see every client and manage admin accounts.
