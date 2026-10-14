@@ -35,12 +35,27 @@ export function companyApiOrigin(host: string | null): string | null {
   return base.origin;
 }
 
+// One API host can serve every company: this site names its company by its
+// own host, which the backend stores as one of that company's addresses.
+// The key proves the call comes from our server. Bare localhost is the
+// public admin, so it never names a company.
+export function companyHeaders(host: string | null): Record<string, string> {
+  const hostname = (host ?? "").split(":")[0].toLowerCase();
+  const key = process.env.COMPANY_HOST_SECRET;
+  if (!key || !hostname || hostname === "localhost" || hostname === "127.0.0.1") {
+    return {};
+  }
+  return { "x-company-host": hostname, "x-company-key": key };
+}
+
 export const loadLook = cache(async (): Promise<Look> => {
   const host = (await headers()).get("host");
-  const origin = companyApiOrigin(host);
-  if (!origin) return fallbackLook();
+  const origin = companyApiOrigin(host) ?? apiBaseUrl();
   try {
-    const response = await fetch(`${origin}/api/look/`, { cache: "no-store" });
+    const response = await fetch(`${origin}/api/look/`, {
+      cache: "no-store",
+      headers: companyHeaders(host),
+    });
     if (!response.ok) return fallbackLook();
     return normalizeLook(await response.json());
   } catch {

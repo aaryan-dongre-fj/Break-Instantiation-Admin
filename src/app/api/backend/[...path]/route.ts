@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { apiBaseUrl, clientPortalOrigin } from "@/lib/instance";
-import { companyApiOrigin } from "@/lib/look";
+import { companyApiOrigin, companyHeaders } from "@/lib/look";
 
 type BackendContext = {
   params: Promise<{ path: string[] }>;
@@ -34,7 +34,7 @@ async function proxy(request: NextRequest, context: BackendContext) {
   const target = new URL(`${apiBase(request)}/api/${path.join("/")}/`);
   target.search = request.nextUrl.search;
 
-  const headers = new Headers();
+  const headers = new Headers(companyHeaders(request.headers.get("host")));
   const cookie = request.headers.get("cookie");
   if (cookie) headers.set("cookie", cookie);
 

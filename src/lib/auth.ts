@@ -3,7 +3,7 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { apiBaseUrl } from "@/lib/instance";
-import { companyApiOrigin } from "@/lib/look";
+import { companyApiOrigin, companyHeaders } from "@/lib/look";
 import { isStaffRole } from "@/lib/roles";
 import type { StaffProfile } from "@/lib/types";
 
@@ -42,7 +42,7 @@ export const authOptions: NextAuthOptions = {
         const host = headerValue(req.headers?.host);
         const origin = companyApiOrigin(host ?? null) ?? apiBaseUrl();
         const me = await fetch(`${origin}/api/staff/me/`, {
-          headers: { cookie, accept: "application/json" },
+          headers: { ...companyHeaders(host ?? null), cookie, accept: "application/json" },
           cache: "no-store",
         });
         if (!me.ok) return null;
