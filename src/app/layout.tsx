@@ -6,7 +6,7 @@ import { loadLook } from "@/lib/look";
 
 import "./globals.css";
 
-// Branding comes from the request host, so the document waits for that request.
+// Branding comes from the company in the path, so the document waits for it.
 export const instant = false;
 
 export async function generateMetadata(): Promise<Metadata> {

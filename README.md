@@ -28,7 +28,7 @@ The default colors are Break-Admin's: a black button, white label, and gray hove
 
 Leave `logo` empty to show the product name. Set it to a public path such as `/brand/logo.png` after placing a file in `public/brand`, or pass `--logo` to the script below.
 
-`API_BASE_URL` is Django. A company host such as `break.localhost` uses that URL's protocol and port with the company hostname. `CLIENT_PORTAL_ORIGIN` is the origin sent on those API calls, and the backend has to list it in `CSRF_TRUSTED_ORIGINS`. Invite emails use the company's stored client site, not this origin. Set both in `.env.local`. The values in `instance.config.json` are the fallback.
+`API_BASE_URL` is Django. Every company is served at `API_BASE_URL/t/<company>/`, and this admin opens it at `/<company>` (for example `http://localhost:3002/break`). `NEXTAUTH_URL` is this site's URL locally; leave it unset on Vercel. `CLIENT_PORTAL_ORIGIN` is the origin sent on those API calls, and the backend has to list it in `CSRF_TRUSTED_ORIGINS`. Invite emails use the company's stored client site, not this origin. Set both in `.env.local`. The values in `instance.config.json` are the fallback.
 
 ## Create a copy
 

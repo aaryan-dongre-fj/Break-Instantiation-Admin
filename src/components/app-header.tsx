@@ -7,6 +7,7 @@ import { IoIosLogOut } from "react-icons/io";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import { apiFetch } from "@/lib/api";
+import { currentCompany } from "@/lib/company";
 import { displayName, roleLabel } from "@/lib/format";
 import type { StaffRole } from "@/lib/types";
 
@@ -34,7 +35,7 @@ export function AppHeader({
     } catch {
       // The local session still needs to close if the API is unreachable.
     }
-    await signOut({ callbackUrl: "/" });
+    await signOut({ callbackUrl: `/${currentCompany()}` });
   }
 
   return (

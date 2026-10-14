@@ -184,9 +184,10 @@ function ensureSecrets(dir) {
     readEnv(current, "CLIENT_PORTAL_ORIGIN") || instance.clientPortalOrigin;
   const body = [
     "# Secrets and service URLs. Name, colors, and logo stay in instance.config.json.",
-    "# Leave NEXTAUTH_URL unset. Each company uses the browser host.",
+    "# One host serves every company at /<company>. Unset NEXTAUTH_URL on Vercel.",
     `SECRET=${secret}`,
     `NEXTAUTH_SECRET=${nextAuthSecret}`,
+    `NEXTAUTH_URL=${readEnv(current, "NEXTAUTH_URL") || instance.appUrl}`,
     `API_BASE_URL=${apiBaseUrl}`,
     `CLIENT_PORTAL_ORIGIN=${clientPortalOrigin}`,
     "",

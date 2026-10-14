@@ -1,45 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { apiBaseUrl, clientPortalOrigin } from "@/lib/instance";
-import { companyApiOrigin, companyHeaders } from "@/lib/look";
+import { apiCookieHeader, apiCsrfToken, companyFromPath, companySetCookie } from "@/lib/company";
+import { clientPortalOrigin } from "@/lib/instance";
+import { companyApiBase } from "@/lib/look";
 
 type BackendContext = {
   params: Promise<{ path: string[] }>;
 };
 
-function apiBase(request: NextRequest) {
-  return companyApiOrigin(request.headers.get("host")) ?? apiBaseUrl();
-}
-
 function portalOrigin() {
   return clientPortalOrigin();
 }
 
-function csrfFromCookie(cookieHeader: string | null) {
-  if (!cookieHeader) return null;
-  for (const part of cookieHeader.split(";")) {
-    const trimmed = part.trim();
-    const separator = trimmed.indexOf("=");
-    if (separator === -1) continue;
-    const name = trimmed.slice(0, separator);
-    if (name === "csrftoken" || name === "__Secure-csrftoken") {
-      return decodeURIComponent(trimmed.slice(separator + 1));
-    }
-  }
-  return null;
-}
-
 async function proxy(request: NextRequest, context: BackendContext) {
-  const { path } = await context.params;
-  const target = new URL(`${apiBase(request)}/api/${path.join("/")}/`);
+  // /api/backend/<company>/<api path>: the company picks /t/<company>/.
+  const [segment = "", ...path] = (await context.params).path;
+  const company = companyFromPath(`/${segment}`);
+  if (!company || path.length === 0) {
+    return NextResponse.json({ detail: "Unknown company." }, { status: 404 });
+  }
+  const target = new URL(`${companyApiBase(company)}/api/${path.join("/")}/`);
   target.search = request.nextUrl.search;
 
-  const headers = new Headers(companyHeaders(request.headers.get("host")));
-  const cookie = request.headers.get("cookie");
+  const headers = new Headers();
+  const browserCookies = request.headers.get("cookie");
+  const cookie = apiCookieHeader(browserCookies, company);
   if (cookie) headers.set("cookie", cookie);
 
   const csrf =
-    request.headers.get("x-csrftoken") ?? csrfFromCookie(cookie);
+    request.headers.get("x-csrftoken") ?? apiCsrfToken(browserCookies, company);
   if (csrf) headers.set("x-csrftoken", csrf);
 
   const contentType = request.headers.get("content-type");
@@ -47,7 +36,7 @@ async function proxy(request: NextRequest, context: BackendContext) {
   headers.set("accept", request.headers.get("accept") ?? "application/json");
 
   // Django checks Origin against CSRF_TRUSTED_ORIGINS. Invite emails use
-  // CLIENT_PORTAL_FRONTEND_URL on the API, not this header.
+  // the company's client_site_url on the API, not this header.
   const origin = portalOrigin();
   headers.set("origin", origin);
   headers.set("referer", `${origin}/`);
@@ -80,7 +69,7 @@ async function proxy(request: NextRequest, context: BackendContext) {
   const upstreamType = upstream.headers.get("content-type");
   if (upstreamType) response.headers.set("content-type", upstreamType);
   for (const setCookie of upstream.headers.getSetCookie()) {
-    response.headers.append("set-cookie", setCookie);
+    response.headers.append("set-cookie", companySetCookie(setCookie, company));
   }
   return response;
 }

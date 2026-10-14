@@ -1,3 +1,5 @@
+import { currentCompany } from "@/lib/company";
+
 export class ApiError extends Error {
   status: number;
 
@@ -36,7 +38,8 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   }
 
   const normalized = path.endsWith("/") ? path.slice(0, -1) : path;
-  const response = await fetch(`/api/backend${normalized}`, {
+  // The page's company rides along as the proxy's first path segment.
+  const response = await fetch(`/api/backend/${currentCompany()}${normalized}`, {
     ...init,
     headers,
     credentials: "include",

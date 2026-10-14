@@ -8,6 +8,7 @@ import { AppHeader } from "@/components/app-header";
 import { ClientsPanel } from "@/components/clients-panel";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ApiError, apiFetch } from "@/lib/api";
+import { currentCompany } from "@/lib/company";
 import { isStaffRole } from "@/lib/roles";
 import type { StaffProfile } from "@/lib/types";
 
@@ -22,8 +23,9 @@ export function DashboardScreen() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
+    const loginPage = `/${currentCompany()}`;
     if (!isStaffRole(session?.user?.role)) {
-      void signOut({ callbackUrl: "/" });
+      void signOut({ callbackUrl: loginPage });
       return;
     }
 
@@ -37,12 +39,12 @@ export function DashboardScreen() {
         }
         return apiFetch("/staff/logout/", { method: "POST" })
           .catch(() => undefined)
-          .then(() => signOut({ callbackUrl: "/" }));
+          .then(() => signOut({ callbackUrl: loginPage }));
       })
       .catch((error: unknown) => {
         if (cancelled) return;
         if (error instanceof ApiError && (error.status === 401 || error.status === 403)) {
-          void signOut({ callbackUrl: "/" });
+          void signOut({ callbackUrl: loginPage });
           return;
         }
         setAllowed(true);

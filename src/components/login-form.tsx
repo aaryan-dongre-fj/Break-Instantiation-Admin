@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError, apiFetch } from "@/lib/api";
+import { currentCompany } from "@/lib/company";
 import { isStaffRole } from "@/lib/roles";
 import type { StaffProfile } from "@/lib/types";
 
@@ -40,11 +41,13 @@ export function LoginForm() {
         return;
       }
 
+      const company = currentCompany();
       const result = await signIn("credentials", {
         redirect: false,
+        company,
         email,
         password,
-        callbackUrl: "/dashboard",
+        callbackUrl: `/${company}/dashboard`,
       });
 
       if (!result || result.error) {
@@ -54,7 +57,7 @@ export function LoginForm() {
         return;
       }
 
-      router.push("/dashboard");
+      router.push(`/${company}/dashboard`);
     } catch (error) {
       const description =
         error instanceof ApiError
