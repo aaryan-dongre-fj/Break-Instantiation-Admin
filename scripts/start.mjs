@@ -7,10 +7,6 @@ const instance = resolveInstance(readConfig(process.cwd()));
 const require = createRequire(import.meta.url);
 const nextBin = require.resolve("next/dist/bin/next");
 
-process.env.NEXTAUTH_URL ??= instance.appUrl;
-process.env.API_BASE_URL ??= instance.apiBaseUrl;
-process.env.CLIENT_PORTAL_ORIGIN ??= instance.clientPortalOrigin;
-
 const child = spawn(process.execPath, [nextBin, "start", "-p", String(instance.devPort)], {
   stdio: "inherit",
   env: process.env,

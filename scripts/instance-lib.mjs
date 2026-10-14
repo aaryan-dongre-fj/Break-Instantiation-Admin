@@ -165,19 +165,30 @@ function syncPackage(dir, packageName) {
   fs.writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`);
 }
 
+function readEnv(text, key) {
+  const match = text.match(new RegExp(`^${key}=(.*)$`, "m"));
+  return match ? match[1].trim() : "";
+}
+
 function ensureSecrets(dir) {
   const envPath = path.join(dir, ".env.local");
-  let secret = "";
-  if (fs.existsSync(envPath)) {
-    const current = fs.readFileSync(envPath, "utf8");
-    const match = current.match(/^SECRET=(.+)$/m);
-    if (match && !match[1].includes("replace-with")) secret = match[1].trim();
+  const current = fs.existsSync(envPath) ? fs.readFileSync(envPath, "utf8") : "";
+  const instance = resolveInstance(readConfig(dir));
+  let secret = readEnv(current, "SECRET");
+  if (!secret || secret.includes("replace-with")) {
+    secret = crypto.randomBytes(32).toString("base64");
   }
-  if (!secret) secret = crypto.randomBytes(32).toString("base64");
+  const nextAuthSecret = readEnv(current, "NEXTAUTH_SECRET") || secret;
+  const apiBaseUrl = readEnv(current, "API_BASE_URL") || instance.apiBaseUrl;
+  const clientPortalOrigin =
+    readEnv(current, "CLIENT_PORTAL_ORIGIN") || instance.clientPortalOrigin;
   const body = [
-    "# Secrets only. Name, colors, logo, port, and API URLs live in instance.config.json.",
+    "# Secrets and service URLs. Name, colors, and logo stay in instance.config.json.",
+    "# Leave NEXTAUTH_URL unset. Each company uses the browser host.",
     `SECRET=${secret}`,
-    `NEXTAUTH_SECRET=${secret}`,
+    `NEXTAUTH_SECRET=${nextAuthSecret}`,
+    `API_BASE_URL=${apiBaseUrl}`,
+    `CLIENT_PORTAL_ORIGIN=${clientPortalOrigin}`,
     "",
   ].join("\n");
   fs.writeFileSync(envPath, body);

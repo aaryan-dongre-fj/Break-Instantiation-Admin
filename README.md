@@ -6,7 +6,7 @@ Sign in with email and password on `/`, then a credentials session sends you to 
 
 ## One config
 
-`instance.config.json` is the only file a new copy needs. The layout matches Break-Admin. A copy changes the product name, logo, and colors. Empty `title`, `description`, and `appUrl` are filled from the product name and port.
+`instance.config.json` holds the product name, logo, and colors. `.env.local` holds the secrets and the service URLs. Empty `title`, `description`, and `appUrl` are filled from the product name and port. The layout matches Break-Admin.
 
 The default colors are Break-Admin's: a black button, white label, and gray hover.
 
@@ -28,7 +28,7 @@ The default colors are Break-Admin's: a black button, white label, and gray hove
 
 Leave `logo` empty to show the product name. Set it to a public path such as `/brand/logo.png` after placing a file in `public/brand`, or pass `--logo` to the script below.
 
-`clientPortalOrigin` is the customer app origin sent with API calls. It has to be listed in the backend's `CSRF_TRUSTED_ORIGINS`. Invite emails use the backend setting `CLIENT_PORTAL_FRONTEND_URL`.
+`API_BASE_URL` is Django. A company host such as `break.localhost` uses that URL's protocol and port with the company hostname. `CLIENT_PORTAL_ORIGIN` is the origin sent on those API calls, and the backend has to list it in `CSRF_TRUSTED_ORIGINS`. Invite emails use the company's stored client site, not this origin. Set both in `.env.local`. The values in `instance.config.json` are the fallback.
 
 ## Create a copy
 

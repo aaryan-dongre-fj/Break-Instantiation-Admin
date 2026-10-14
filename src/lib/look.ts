@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { headers } from "next/headers";
 
-import { instance } from "@/lib/instance";
+import { apiBaseUrl, instance } from "@/lib/instance";
 
 export type Look = {
   name: string;
@@ -30,7 +30,9 @@ export function fallbackLook(): Look {
 export function companyApiOrigin(host: string | null): string | null {
   const hostname = (host ?? "").split(":")[0];
   if (!hostname.endsWith(".localhost")) return null;
-  return `http://${hostname}:8000`;
+  const base = new URL(apiBaseUrl());
+  base.hostname = hostname;
+  return base.origin;
 }
 
 export const loadLook = cache(async (): Promise<Look> => {

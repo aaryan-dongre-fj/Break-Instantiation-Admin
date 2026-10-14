@@ -13,7 +13,7 @@ function headerValue(value: string | string[] | undefined) {
 
 // The dev server was started with NEXTAUTH_URL pinned to one company.
 // Each request has to use the browser host, or Break sign-in is checked as EJ.
-export async function useRequestAuthUrl() {
+export async function setRequestAuthUrl() {
   const headerList = await headers();
   const host = headerList.get("host");
   if (!host) return;
