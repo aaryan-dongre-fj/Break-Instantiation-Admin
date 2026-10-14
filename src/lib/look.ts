@@ -37,6 +37,28 @@ export async function requestCompany(): Promise<string | null> {
   return (await headers()).get("x-company");
 }
 
+export type CompanyLink = { slug: string; name: string; primary: string };
+
+/** Live companies for the landing page, from the API's public root. */
+export async function loadCompanies(): Promise<CompanyLink[] | null> {
+  try {
+    const response = await fetch(`${apiBaseUrl()}/api/companies/`, { cache: "no-store" });
+    if (!response.ok) return null;
+    const rows = (await response.json()) as unknown;
+    if (!Array.isArray(rows)) return null;
+    return rows.flatMap((row) => {
+      const record = (row ?? {}) as Record<string, unknown>;
+      const colors = (record.colors ?? {}) as Record<string, unknown>;
+      const slug = text(record.slug);
+      return slug
+        ? [{ slug, name: text(record.name, slug), primary: text(colors.primary, "#000000") }]
+        : [];
+    });
+  } catch {
+    return null;
+  }
+}
+
 export const loadLook = cache(async (): Promise<Look> => {
   const company = await requestCompany();
   if (!company) return fallbackLook();
