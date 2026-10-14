@@ -1,10 +1,12 @@
-import Link from "next/link";
 import { BsArrowRightShort } from "react-icons/bs";
 
 import type { CompanyLink } from "@/lib/look";
 
 // The landing page has no company in its path, so it lists every live
-// company. Each opens /<slug>, that company's sign-in.
+// company. Each opens /<slug>, that company's sign-in. A plain link, not
+// next/link: / and /<slug> are the same rewritten page, and the company's
+// branding sits in the root layout, so a client navigation would keep this
+// page and only change the URL.
 export function CompanyList({ companies }: { companies: CompanyLink[] | null }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white">
@@ -23,7 +25,7 @@ export function CompanyList({ companies }: { companies: CompanyLink[] | null }) 
           <ul className="flex flex-col gap-3">
             {companies.map((company) => (
               <li key={company.slug}>
-                <Link
+                <a
                   href={`/${company.slug}`}
                   className="flex items-center justify-between rounded-[10px] border border-[#E2E8F0] px-4 py-3 transition-colors hover:bg-[#F7FAFC]"
                 >
@@ -36,7 +38,7 @@ export function CompanyList({ companies }: { companies: CompanyLink[] | null }) 
                     <span className="font-medium">{company.name}</span>
                   </span>
                   <BsArrowRightShort className="size-6 text-[#718096]" />
-                </Link>
+                </a>
               </li>
             ))}
           </ul>
